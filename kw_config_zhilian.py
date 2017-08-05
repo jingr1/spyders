@@ -11,7 +11,7 @@ TOTAL_PAGE_NUMBER = 90
 KEYWORDS = ['自动驾驶','嵌入式软件']
 
 #main city
-ADDRESS = ['上海','苏州']
+ADDRESS = ['上海']
 
 MONGO_URL = 'localhost'
 MONGO_DB  = 'zhilian'

@@ -25,6 +25,7 @@ import pymongo
 from kw_config_zhilian import *
 import time
 from itertools import product
+import pandas
 
 client = pymongo.MongoClient(MONGO_URL)
 db = client[MONGO_DB]
@@ -80,7 +81,7 @@ def main(args):
     itemdata = []
     for keyword in KEYWORDS:
         mongo_table = db[keyword]
-        paras = {'j1':args[0],
+        paras = {'jl':args[0],
                  'kw':keyword,
                  'p' :args[1]
                  }
@@ -91,10 +92,10 @@ def main(args):
         if html:
             data = get_content(html)
             for item in data:
-                if mongo_table.update({'job_link':item['job_link']},{'$set':item},True):
+                if mongo_table.update({'job_link':item['job_link']},{'$set':item},True): # avoid the repetitive item
                     #print 'saved records:'
                     #print item['job_title'].encode('utf-8')+','+item['job_link']+','+item['salary']
-                itemdata.append(item)
+                    itemdata.append(item)
     return itemdata
 
 
@@ -109,6 +110,8 @@ if __name__ == '__main__':
     for index in range(len(resultdata)):
         for dictindex in range(len(resultdata[index])):
             dictlist.append(resultdata[index][dictindex])
+    df = pandas.DataFrame(dictlist)
+    df.to_excel('zhilian.xlsx')
     for dictindex in range(len(dictlist)):
         filelist =[]
         for key in dictlist[dictindex]:
