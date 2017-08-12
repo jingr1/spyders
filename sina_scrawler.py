@@ -12,9 +12,13 @@ import json
 from datetime import datetime
 import pandas
 import re
+import sqlite3
 
 CommentsURL = 'http://comment5.news.sina.com.cn/page/info?version=1&format=js&channel=gn&\
 newsid=comos-{}&group=&compress=0&ie=utf-8&oe=utf-8&page=1&page_size=20'
+
+url = 'http://api.roll.news.sina.com.cn/zt_list?channel=news&cat_1=gnxw&cat_2==gdxw1||=gatxw||=zs-pl||=mtjj&level==1||=2&show_ext=1&show_all=1&show_num=22&tag=1&format=json&page={}&callback=newsloadercallback&_=1501314053177'
+
 def getCommentCounts(newsurl):
     m=re.search('doc-i(.*).shtml', newsurl)
     newsid = m.group(1)
@@ -45,22 +49,23 @@ def parseListLinks(url):
     return newsdetails
 
 
-url = 'http://api.roll.news.sina.com.cn/zt_list?channel=news&cat_1=gnxw&cat_2==gdxw1||=gatxw||=zs-pl||=mtjj&level==1||=2&show_ext=1&show_all=1&show_num=22&tag=1&format=json&page={}&callback=newsloadercallback&_=1501314053177'
+def main():
+    news_total = []
+    for i in range(1,3):
+        newsurl = url.format(i)
+        newsary = parseListLinks(newsurl)
+        news_total.extend(newsary)
 
-news_total = []
-for i in range(1,3):
-    newsurl = url.format(i)
-    newsary = parseListLinks(newsurl)
-    news_total.extend(newsary)
+    df = pandas.DataFrame(news_total)
 
-df = pandas.DataFrame(news_total)
+    df.to_excel('news.xlsx')
 
-df.to_excel('news.xlsx')
+    with sqlite3.connect('news.sqlite') as db:
+        df.to_sql('news',con = db)
 
-import sqlite3
+    with sqlite3.connect('news.sqlite') as db:
+        df2 = pandas.read_sql_query('SELECT * FROM news',con=db)
+    print('scrawler sina news over!')
 
-with sqlite3.connect('news.sqlite') as db:
-    df.to_sql('news',con = db)
-
-with sqlite3.connect('news.sqlite') as db:
-    df2 = pandas.read_sql_query('SELECT * FROM news',con=db)
+if __name__ == '__main__':
+    main()

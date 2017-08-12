@@ -8,7 +8,7 @@
 import os
 TOTAL_PAGE_NUMBER = 90
 
-KEYWORDS = ['自动驾驶','嵌入式软件']
+KEYWORDS = ['自动驾驶']
 
 #main city
 ADDRESS = ['上海']
